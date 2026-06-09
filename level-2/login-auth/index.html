@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AuthFlow — Login System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #070710;
+      --surface: #0e0e1a;
+      --card: #13131f;
+      --border: #1e1e30;
+      --border2: #2a2a40;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --accent-glow: rgba(108,99,255,0.25);
+      --red: #ff4d6d;
+      --green: #00d68f;
+      --yellow: #ffd166;
+      --text: #e8e8f5;
+      --muted: #5a5a7a;
+      --muted2: #8888aa;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background grid */
+    body::before {
+      content:'';
+      position:fixed; inset:0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index:0;
+    }
+
+    /* Glow orbs */
+    .orb { position:fixed; border-radius:50%; filter:blur(100px); z-index:0; pointer-events:none; }
+    .orb-1 { width:500px; height:500px; background:rgba(108,99,255,0.1); top:-200px; left:-200px; }
+    .orb-2 { width:400px; height:400px; background:rgba(167,139,250,0.07); bottom:-150px; right:-150px; }
+
+    /* Pages */
+    .page { display:none; position:relative; z-index:1; width:100%; justify-content:center; align-items:center; min-height:100vh; padding:20px; }
+    .page.active { display:flex; animation: fadeIn 0.4s ease; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Auth card */
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+
+    .auth-card::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity:0.6;
+    }
+
+    /* Logo */
+    .logo {
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:32px; justify-content:center;
+    }
+
+    .logo-icon {
+      width:36px; height:36px; border-radius:10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .logo-text {
+      font-size:20px; font-weight:800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      letter-spacing:-0.5px;
+    }
+
+    /* Card titles */
+    .card-title { font-size:24px; font-weight:700; color:var(--text); margin-bottom:6px; text-align:center; }
+    .card-sub { font-size:14px; color:var(--muted2); text-align:center; margin-bottom:28px; font-weight:400; }
+
+    /* Form fields */
+    .field { margin-bottom:18px; }
+
+    .field label {
+      display:block; font-size:12px; font-weight:600;
+      color:var(--muted2); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;
+    }
+
+    .field-wrap { position:relative; }
+
+    .field-icon {
+      position:absolute; left:14px; top:50%; transform:translateY(-50%);
+      font-size:16px; pointer-events:none;
+    }
+
+    .field input {
+      width:100%; padding:13px 14px 13px 42px;
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius:12px; color:var(--text);
+      font-family:'Inter',sans-serif; font-size:14px;
+      outline:none; transition:all 0.2s;
+    }
+
+    .field input:focus { border-color:var(--accent); background:#0f0f1c; box-shadow:0 0 0 4px var(--accent-glow); }
+    .field input::placeholder { color:var(--muted); }
+
+    .field input.error { border-color:var(--red); }
+    .field input.success { border-color:var(--green); }
+
+    .field-error { font-size:11px; color:var(--red); margin-top:6px; display:none; }
+    .field-error.show { display:block; }
+
+    /* Password toggle */
+    .pwd-toggle {
+      position:absolute; right:14px; top:50%; transform:translateY(-50%);
+      cursor:pointer; font-size:16px; color:var(--muted); transition:color 0.2s;
+    }
+    .pwd-toggle:hover { color:var(--accent); }
+
+    /* Password strength */
+    .pwd-strength { margin-top:8px; }
+    .strength-bar { height:3px; border-radius:2px; background:var(--border2); overflow:hidden; margin-bottom:4px; }
+    .strength-fill { height:100%; border-radius:2px; transition:all 0.3s; width:0%; }
+    .strength-label { font-size:10px; color:var(--muted2); letter-spacing:1px; }
+
+    /* Submit button */
+    .submit-btn {
+      width:100%; padding:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border:none; border-radius:12px; color:white;
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:700;
+      cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
+      margin-top:8px; position:relative; overflow:hidden;
+    }
+
+    .submit-btn::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    }
+
+    .submit-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px var(--accent-glow); }
+    .submit-btn:active { transform:translateY(0); }
+    .submit-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+    /* Links */
+    .auth-link {
+      text-align:center; margin-top:20px;
+      font-size:13px; color:var(--muted2);
+    }
+
+    .auth-link a { color:var(--accent2); text-decoration:none; font-weight:600; cursor:pointer; transition:color 0.2s; }
+    .auth-link a:hover { color:var(--accent); }
+
+    .forgot-link {
+      text-align:right; margin-top:-10px; margin-bottom:18px;
+      font-size:12px;
+    }
+    .forgot-link a { color:var(--muted2); text-decoration:none; cursor:pointer; transition:color 0.2s; }
+    .forgot-link a:hover { color:var(--accent2); }
+
+    /* Divider */
+    .divider {
+      display:flex; align-items:center; gap:12px;
+      margin:20px 0; font-size:12px; color:var(--muted);
+    }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* OTP fields */
+    .otp-row { display:flex; gap:10px; justify-content:center; margin:20px 0; }
+
+    .otp-input {
+      width:52px; height:56px; text-align:center;
+      background:var(--surface); border:1px solid var(--border2);
+      border-radius:12px; color:var(--text);
+      font-family:'Inter',sans-serif; font-size:22px; font-weight:700;
+      outline:none; transition:all 0.2s;
+    }
+    .otp-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+    .otp-input.filled { border-color:var(--accent2); background:#0f0f1c; }
+
+    /* Resend timer */
+    .resend-wrap { text-align:center; font-size:13px; color:var(--muted2); margin-top:12px; }
+    .resend-link { color:var(--accent2); cursor:pointer; font-weight:600; }
+    .resend-link.disabled { color:var(--muted); cursor:not-allowed; }
+
+    /* ── DASHBOARD ── */
+    .dashboard {
+      width:100%; max-width:900px; padding:20px;
+    }
+
+    /* Navbar */
+    .dash-nav {
+      display:flex; align-items:center; justify-content:space-between;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:14px 24px; margin-bottom:28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .dash-nav-logo { display:flex; align-items:center; gap:8px; }
+    .dash-nav-logo span { font-size:16px; font-weight:800; color:var(--text); }
+
+    .nav-user { display:flex; align-items:center; gap:12px; }
+
+    .user-avatar {
+      width:36px; height:36px; border-radius:50%;
+      background:linear-gradient(135deg, var(--accent), var(--accent2));
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; font-weight:700; color:white;
+    }
+
+    .user-name { font-size:13px; font-weight:600; color:var(--text); }
+    .user-email { font-size:11px; color:var(--muted2); }
+
+    .logout-btn {
+      padding:8px 16px; background:rgba(255,77,109,0.1);
+      border:1px solid rgba(255,77,109,0.2); border-radius:8px;
+      color:var(--red); font-family:'Inter',sans-serif;
+      font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;
+    }
+    .logout-btn:hover { background:var(--red); color:white; }
+
+    /* Welcome banner */
+    .welcome-banner {
+      background:linear-gradient(135deg, #1a1040, #0d1a2e);
+      border:1px solid rgba(108,99,255,0.2);
+      border-radius:20px; padding:32px; margin-bottom:24px;
+      position:relative; overflow:hidden;
+    }
+
+    .welcome-banner::before {
+      content:'🔐'; position:absolute; right:24px; top:50%;
+      transform:translateY(-50%); font-size:64px; opacity:0.15;
+    }
+
+    .welcome-banner h2 {
+      font-size:26px; font-weight:800; margin-bottom:8px;
+      background:linear-gradient(135deg, var(--accent2), #fff);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+
+    .welcome-banner p { font-size:14px; color:rgba(255,255,255,0.5); font-weight:300; }
+
+    .verified-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(0,214,143,0.1); border:1px solid rgba(0,214,143,0.2);
+      color:var(--green); font-size:11px; font-weight:600;
+      padding:4px 12px; border-radius:100px; margin-top:12px;
+      letter-spacing:1px; text-transform:uppercase;
+    }
+
+    /* Dash cards */
+    .dash-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+
+    .dash-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:20px;
+      transition:all 0.3s;
+    }
+    .dash-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 8px 30px rgba(108,99,255,0.1); }
+
+    .dash-card-icon { font-size:28px; margin-bottom:12px; }
+    .dash-card-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:4px; }
+    .dash-card-desc { font-size:12px; color:var(--muted2); font-weight:300; line-height:1.5; }
+
+    /* Profile section */
+    .profile-section {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:20px; padding:28px;
+    }
+
+    .profile-section h3 {
+      font-size:16px; font-weight:700; color:var(--text);
+      margin-bottom:20px; display:flex; align-items:center; gap:8px;
+    }
+
+    .profile-row {
+      display:grid; grid-template-columns:1fr 1fr; gap:16px;
+    }
+
+    .profile-field {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:14px 16px;
+    }
+
+    .profile-field-label { font-size:10px; font-weight:600; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+    .profile-field-value { font-size:14px; color:var(--text); font-weight:500; }
+
+    /* Toast */
+    .toast {
+      position:fixed; bottom:30px; left:50%;
+      transform:translateX(-50%) translateY(80px);
+      padding:12px 24px; border-radius:100px;
+      font-size:13px; font-weight:600; z-index:1000;
+      transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      opacity:0; white-space:nowrap; pointer-events:none;
+    }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    .toast.success { background:#00d68f; color:#003322; }
+    .toast.error { background:var(--red); color:white; }
+    .toast.info { background:var(--accent); color:white; }
+
+    /* Loading spinner */
+    .spinner {
+      display:inline-block; width:16px; height:16px;
+      border:2px solid rgba(255,255,255,0.3);
+      border-top-color:white; border-radius:50%;
+      animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:6px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media (max-width:600px) {
+      .auth-card { padding:32px 24px; }
+      .dash-grid { grid-template-columns:1fr 1fr; }
+      .profile-row { grid-template-columns:1fr; }
+      .dash-nav { flex-wrap:wrap; gap:12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- ── LOGIN PAGE ── -->
+  <div class="page active" id="page-login">
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">🔐</div>
+        <span class="logo-text">AuthFlow</span>
+      </div>
+      <h2 class="card-title">Welcome back</h2>
+      <p class="card-sub">Sign in to your secured account</p>
+
+      <div class="field">
+        <label>Email Address</label>
+        <div class="field-wrap">
+          <span class="field-icon">📧</span>
+          <input type="email" id="login-email" placeholder="you@example.com"/>
+        </div>
+        <div class="field-error" id="login-email-err">Please enter a valid email</div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔑</span>
+          <input type="password" id="login-pwd" placeholder="Enter your password"/>
+          <span class="pwd-toggle" onclick="togglePwd('login-pwd', this)">👁</span>
+        </div>
+        <div class="field-error" id="login-pwd-err">Password is required</div>
+      </div>
+
+      <div class="forgot-link">
+        <a onclick="goTo('page-forgot')">Forgot password?</a>
+      </div>
+
+      <button class="submit-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+
+      <div class="auth-link">
+        Don't have an account? <a onclick="goTo('page-register')">Create one free</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REGISTER PAGE ── -->
+  <div class="page" id="page-register">
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">🔐</div>
+        <span class="logo-text">AuthFlow</span>
+      </div>
+      <h2 class="card-title">Create account</h2>
+      <p class="card-sub">Join thousands of secure users</p>
+
+      <div class="field">
+        <label>Full Name</label>
+        <div class="field-wrap">
+          <span class="field-icon">👤</span>
+          <input type="text" id="reg-name" placeholder="Your full name"/>
+        </div>
+        <div class="field-error" id="reg-name-err">Name must be at least 2 characters</div>
+      </div>
+
+      <div class="field">
+        <label>Email Address</label>
+        <div class="field-wrap">
+          <span class="field-icon">📧</span>
+          <input type="email" id="reg-email" placeholder="you@example.com"/>
+        </div>
+        <div class="field-error" id="reg-email-err">Please enter a valid email</div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔑</span>
+          <input type="password" id="reg-pwd" placeholder="Min. 8 characters" oninput="checkStrength(this.value)"/>
+          <span class="pwd-toggle" onclick="togglePwd('reg-pwd', this)">👁</span>
+        </div>
+        <div class="pwd-strength">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <span class="strength-label" id="strength-label">Enter a password</span>
+        </div>
+        <div class="field-error" id="reg-pwd-err">Password must be at least 8 characters</div>
+      </div>
+
+      <div class="field">
+        <label>Confirm Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="reg-pwd2" placeholder="Repeat your password"/>
+          <span class="pwd-toggle" onclick="togglePwd('reg-pwd2', this)">👁</span>
+        </div>
+        <div class="field-error" id="reg-pwd2-err">Passwords do not match</div>
+      </div>
+
+      <button class="submit-btn" id="reg-btn" onclick="doRegister()">Create Account</button>
+
+      <div class="auth-link">
+        Already have an account? <a onclick="goTo('page-login')">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMAIL VERIFICATION PAGE ── -->
+  <div class="page" id="page-verify">
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">📨</div>
+        <span class="logo-text">AuthFlow</span>
+      </div>
+      <h2 class="card-title">Verify your email</h2>
+      <p class="card-sub" id="verify-sub">We sent a 6-digit code to your email address</p>
+
+      <div style="text-align:center; font-size:48px; margin:12px 0;">📬</div>
+
+      <div class="otp-row">
+        <input class="otp-input" id="otp0" maxlength="1" oninput="otpMove(0)" onkeydown="otpBack(event,0)"/>
+        <input class="otp-input" id="otp1" maxlength="1" oninput="otpMove(1)" onkeydown="otpBack(event,1)"/>
+        <input class="otp-input" id="otp2" maxlength="1" oninput="otpMove(2)" onkeydown="otpBack(event,2)"/>
+        <input class="otp-input" id="otp3" maxlength="1" oninput="otpMove(3)" onkeydown="otpBack(event,3)"/>
+        <input class="otp-input" id="otp4" maxlength="1" oninput="otpMove(4)" onkeydown="otpBack(event,4)"/>
+        <input class="otp-input" id="otp5" maxlength="1" oninput="otpMove(5)" onkeydown="otpBack(event,5)"/>
+      </div>
+
+      <div class="resend-wrap">
+        <span id="resend-timer">Resend code in <strong id="timer-val">30</strong>s</span>
+        <span id="resend-link" class="resend-link disabled" onclick="resendOtp()" style="display:none">Resend code</span>
+      </div>
+
+      <button class="submit-btn" style="margin-top:20px" onclick="doVerify()">Verify Email</button>
+
+      <div class="auth-link" style="margin-top:16px">
+        <a onclick="goTo('page-login')">← Back to login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FORGOT PASSWORD PAGE ── -->
+  <div class="page" id="page-forgot">
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">🔓</div>
+        <span class="logo-text">AuthFlow</span>
+      </div>
+      <h2 class="card-title">Forgot password?</h2>
+      <p class="card-sub">Enter your email and we'll send a reset code</p>
+
+      <div class="field">
+        <label>Email Address</label>
+        <div class="field-wrap">
+          <span class="field-icon">📧</span>
+          <input type="email" id="forgot-email" placeholder="you@example.com"/>
+        </div>
+        <div class="field-error" id="forgot-email-err">Please enter a valid email</div>
+      </div>
+
+      <button class="submit-btn" onclick="doForgot()">Send Reset Code</button>
+
+      <div class="auth-link">
+        <a onclick="goTo('page-login')">← Back to login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESET PASSWORD PAGE ── -->
+  <div class="page" id="page-reset">
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">🔑</div>
+        <span class="logo-text">AuthFlow</span>
+      </div>
+      <h2 class="card-title">Reset password</h2>
+      <p class="card-sub">Enter the code we sent + your new password</p>
+
+      <div class="otp-row" style="margin-bottom:20px">
+        <input class="otp-input" id="rotp0" maxlength="1" oninput="rotpMove(0)" onkeydown="rotpBack(event,0)"/>
+        <input class="otp-input" id="rotp1" maxlength="1" oninput="rotpMove(1)" onkeydown="rotpBack(event,1)"/>
+        <input class="otp-input" id="rotp2" maxlength="1" oninput="rotpMove(2)" onkeydown="rotpBack(event,2)"/>
+        <input class="otp-input" id="rotp3" maxlength="1" oninput="rotpMove(3)" onkeydown="rotpBack(event,3)"/>
+        <input class="otp-input" id="rotp4" maxlength="1" oninput="rotpMove(4)" onkeydown="rotpBack(event,4)"/>
+        <input class="otp-input" id="rotp5" maxlength="1" oninput="rotpMove(5)" onkeydown="rotpBack(event,5)"/>
+      </div>
+
+      <div class="field">
+        <label>New Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔑</span>
+          <input type="password" id="new-pwd" placeholder="Min. 8 characters"/>
+          <span class="pwd-toggle" onclick="togglePwd('new-pwd', this)">👁</span>
+        </div>
+        <div class="field-error" id="new-pwd-err">Password must be at least 8 characters</div>
+      </div>
+
+      <div class="field">
+        <label>Confirm New Password</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="new-pwd2" placeholder="Repeat new password"/>
+          <span class="pwd-toggle" onclick="togglePwd('new-pwd2', this)">👁</span>
+        </div>
+        <div class="field-error" id="new-pwd2-err">Passwords do not match</div>
+      </div>
+
+      <button class="submit-btn" onclick="doReset()">Reset Password</button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page" id="page-dashboard">
+    <div class="dashboard">
+
+      <div class="dash-nav">
+        <div class="dash-nav-logo">
+          <div class="logo-icon" style="width:30px;height:30px;font-size:14px;">🔐</div>
+          <span>AuthFlow</span>
+        </div>
+        <div class="nav-user">
+          <div class="user-avatar" id="dash-avatar">U</div>
+          <div>
+            <div class="user-name" id="dash-name">User</div>
+            <div class="user-email" id="dash-email">user@example.com</div>
+          </div>
+          <button class="logout-btn" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
+
+      <div class="welcome-banner">
+        <h2 id="welcome-msg">Welcome back! 👋</h2>
+        <p>You are now inside your secured dashboard. Your session is active and protected.</p>
+        <div class="verified-badge">✅ Email Verified · Authenticated</div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-icon">🛡️</div>
+          <div class="dash-card-title">Account Security</div>
+          <div class="dash-card-desc">Your account is fully secured with email verification and strong password encryption.</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">📊</div>
+          <div class="dash-card-title">Activity Log</div>
+          <div class="dash-card-desc">Last login recorded. All sessions are monitored and protected against unauthorized access.</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-icon">⚙️</div>
+          <div class="dash-card-title">Settings</div>
+          <div class="dash-card-desc">Manage your profile, change password, and configure two-factor authentication.</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>👤 Your Profile</h3>
+        <div class="profile-row">
+          <div class="profile-field">
+            <div class="profile-field-label">Full Name</div>
+            <div class="profile-field-value" id="profile-name">—</div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-field-label">Email Address</div>
+            <div class="profile-field-value" id="profile-email">—</div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-field-label">Account Status</div>
+            <div class="profile-field-value" style="color:var(--green)">✅ Verified & Active</div>
+          </div>
+          <div class="profile-field">
+            <div class="profile-field-label">Last Login</div>
+            <div class="profile-field-value" id="profile-login">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── State ──
+    let users = []; // simulated user DB
+    let currentUser = null;
+    let pendingUser = null; // user waiting for email verification
+    let generatedOtp = '';
+    let otpTimer = null;
+    let forgotEmail = '';
+
+    // ── Navigation ──
+    function goTo(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    // ── Toast ──
+    function showToast(msg, type='info') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ── Utilities ──
+    function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    function togglePwd(id, el) {
+      const inp = document.getElementById(id);
+      if (inp.type === 'password') { inp.type = 'text'; el.textContent = '🙈'; }
+      else { inp.type = 'password'; el.textContent = '👁'; }
+    }
+
+    function setErr(id, show) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('show', show);
+    }
+
+    function setInpState(id, state) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('error','success');
+      if (state) el.classList.add(state);
+    }
+
+    function genOtp() { return String(Math.floor(100000 + Math.random() * 900000)); }
+
+    // ── Password Strength ──
+    function checkStrength(pwd) {
+      const fill = document.getElementById('strength-fill');
+      const label = document.getElementById('strength-label');
+      let score = 0;
+      if (pwd.length >= 8) score++;
+      if (/[A-Z]/.test(pwd)) score++;
+      if (/[0-9]/.test(pwd)) score++;
+      if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+      const configs = [
+        { w:'0%', color:'transparent', text:'Enter a password' },
+        { w:'25%', color:'#ff4d6d', text:'Weak' },
+        { w:'50%', color:'#ffd166', text:'Fair' },
+        { w:'75%', color:'#06d6a0', text:'Good' },
+        { w:'100%', color:'#00d68f', text:'Strong 💪' },
+      ];
+      const c = configs[score];
+      fill.style.width = c.w;
+      fill.style.background = c.color;
+      label.textContent = c.text;
+      label.style.color = c.color;
+    }
+
+    // ── OTP Inputs ──
+    function otpMove(i) {
+      const el = document.getElementById('otp'+i);
+      el.classList.toggle('filled', el.value !== '');
+      if (el.value && i < 5) document.getElementById('otp'+(i+1)).focus();
+    }
+    function otpBack(e, i) {
+      if (e.key==='Backspace' && !document.getElementById('otp'+i).value && i > 0)
+        document.getElementById('otp'+(i-1)).focus();
+    }
+    function getOtp() { return [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join(''); }
+    function clearOtp() { [0,1,2,3,4,5].forEach(i=>{ const el=document.getElementById('otp'+i); el.value=''; el.classList.remove('filled'); }); }
+
+    function rotpMove(i) {
+      const el = document.getElementById('rotp'+i);
+      el.classList.toggle('filled', el.value !== '');
+      if (el.value && i < 5) document.getElementById('rotp'+(i+1)).focus();
+    }
+    function rotpBack(e, i) {
+      if (e.key==='Backspace' && !document.getElementById('rotp'+i).value && i > 0)
+        document.getElementById('rotp'+(i-1)).focus();
+    }
+    function getRotp() { return [0,1,2,3,4,5].map(i=>document.getElementById('rotp'+i).value).join(''); }
+
+    // ── OTP Timer ──
+    function startOtpTimer() {
+      let secs = 30;
+      document.getElementById('resend-timer').style.display = 'inline';
+      document.getElementById('resend-link').style.display = 'none';
+      clearInterval(otpTimer);
+      otpTimer = setInterval(() => {
+        secs--;
+        document.getElementById('timer-val').textContent = secs;
+        if (secs <= 0) {
+          clearInterval(otpTimer);
+          document.getElementById('resend-timer').style.display = 'none';
+          document.getElementById('resend-link').style.display = 'inline';
+          document.getElementById('resend-link').classList.remove('disabled');
+        }
+      }, 1000);
+    }
+
+    function resendOtp() {
+      generatedOtp = genOtp();
+      showToast(`📨 New OTP sent! (Demo OTP: ${generatedOtp})`, 'info');
+      clearOtp();
+      startOtpTimer();
+    }
+
+    // ── LOGIN ──
+    function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pwd = document.getElementById('login-pwd').value;
+      let valid = true;
+
+      if (!isEmail(email)) { setErr('login-email-err', true); setInpState('login-email','error'); valid=false; }
+      else { setErr('login-email-err', false); setInpState('login-email','success'); }
+
+      if (!pwd) { setErr('login-pwd-err', true); setInpState('login-pwd','error'); valid=false; }
+      else { setErr('login-pwd-err', false); setInpState('login-pwd','success'); }
+
+      if (!valid) return;
+
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Signing in...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In';
+
+        const user = users.find(u => u.email === email && u.password === pwd);
+        if (!user) {
+          showToast('❌ Invalid email or password', 'error');
+          setInpState('login-email','error'); setInpState('login-pwd','error');
+          return;
+        }
+
+        currentUser = user;
+        currentUser.lastLogin = new Date().toLocaleString('en-IN');
+        loadDashboard();
+        showToast('✅ Welcome back, ' + user.name.split(' ')[0] + '!', 'success');
+      }, 1200);
+    }
+
+    // ── REGISTER ──
+    function doRegister() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pwd = document.getElementById('reg-pwd').value;
+      const pwd2 = document.getElementById('reg-pwd2').value;
+      let valid = true;
+
+      if (name.length < 2) { setErr('reg-name-err', true); setInpState('reg-name','error'); valid=false; }
+      else { setErr('reg-name-err', false); setInpState('reg-name','success'); }
+
+      if (!isEmail(email)) { setErr('reg-email-err', true); setInpState('reg-email','error'); valid=false; }
+      else { setErr('reg-email-err', false); setInpState('reg-email','success'); }
+
+      if (pwd.length < 8) { setErr('reg-pwd-err', true); setInpState('reg-pwd','error'); valid=false; }
+      else { setErr('reg-pwd-err', false); setInpState('reg-pwd','success'); }
+
+      if (pwd !== pwd2) { setErr('reg-pwd2-err', true); setInpState('reg-pwd2','error'); valid=false; }
+      else { setErr('reg-pwd2-err', false); if(pwd2) setInpState('reg-pwd2','success'); }
+
+      if (!valid) return;
+
+      if (users.find(u => u.email === email)) {
+        showToast('⚠️ Email already registered!', 'error');
+        setInpState('reg-email','error'); return;
+      }
+
+      const btn = document.getElementById('reg-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Creating account...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = 'Create Account';
+
+        pendingUser = { name, email, password: pwd, lastLogin: null };
+        generatedOtp = genOtp();
+
+        document.getElementById('verify-sub').textContent = `We sent a 6-digit code to ${email}`;
+        showToast(`📨 OTP sent! (Demo OTP: ${generatedOtp})`, 'info');
+        clearOtp();
+        goTo('page-verify');
+        startOtpTimer();
+        setTimeout(() => document.getElementById('otp0').focus(), 300);
+      }, 1200);
+    }
+
+    // ── VERIFY EMAIL ──
+    function doVerify() {
+      const otp = getOtp();
+      if (otp.length < 6) { showToast('⚠️ Enter the complete 6-digit code', 'error'); return; }
+      if (otp !== generatedOtp) { showToast('❌ Incorrect OTP. Try again.', 'error'); clearOtp(); document.getElementById('otp0').focus(); return; }
+
+      users.push(pendingUser);
+      currentUser = pendingUser;
+      currentUser.lastLogin = new Date().toLocaleString('en-IN');
+      pendingUser = null;
+      clearInterval(otpTimer);
+      loadDashboard();
+      showToast('🎉 Email verified! Account created.', 'success');
+    }
+
+    // ── FORGOT PASSWORD ──
+    function doForgot() {
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!isEmail(email)) { setErr('forgot-email-err', true); return; }
+      setErr('forgot-email-err', false);
+
+      const user = users.find(u => u.email === email);
+      forgotEmail = email;
+      generatedOtp = genOtp();
+      showToast(`📨 Reset code sent! (Demo OTP: ${generatedOtp})`, 'info');
+      goTo('page-reset');
+    }
+
+    // ── RESET PASSWORD ──
+    function doReset() {
+      const otp = getRotp();
+      const pwd = document.getElementById('new-pwd').value;
+      const pwd2 = document.getElementById('new-pwd2').value;
+      let valid = true;
+
+      if (otp !== generatedOtp) { showToast('❌ Incorrect reset code', 'error'); return; }
+      if (pwd.length < 8) { setErr('new-pwd-err', true); setInpState('new-pwd','error'); valid=false; }
+      else { setErr('new-pwd-err', false); setInpState('new-pwd','success'); }
+      if (pwd !== pwd2) { setErr('new-pwd2-err', true); setInpState('new-pwd2','error'); valid=false; }
+      else { setErr('new-pwd2-err', false); if(pwd2) setInpState('new-pwd2','success'); }
+      if (!valid) return;
+
+      const user = users.find(u => u.email === forgotEmail);
+      if (user) user.password = pwd;
+      showToast('✅ Password reset successfully!', 'success');
+      setTimeout(() => goTo('page-login'), 1500);
+    }
+
+    // ── DASHBOARD ──
+    function loadDashboard() {
+      const u = currentUser;
+      document.getElementById('dash-avatar').textContent = u.name[0].toUpperCase();
+      document.getElementById('dash-name').textContent = u.name;
+      document.getElementById('dash-email').textContent = u.email;
+      document.getElementById('welcome-msg').textContent = `Welcome, ${u.name.split(' ')[0]}! 👋`;
+      document.getElementById('profile-name').textContent = u.name;
+      document.getElementById('profile-email').textContent = u.email;
+      document.getElementById('profile-login').textContent = u.lastLogin;
+      goTo('page-dashboard');
+    }
+
+    // ── LOGOUT ──
+    function doLogout() {
+      currentUser = null;
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-pwd').value = '';
+      goTo('page-login');
+      showToast('👋 Signed out successfully', 'info');
+    }
+
+    // Enter key support
+    document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+    document.getElementById('reg-pwd2').addEventListener('keydown', e => { if(e.key==='Enter') doRegister(); });
+    document.getElementById('forgot-email').addEventListener('keydown', e => { if(e.key==='Enter') doForgot(); });
+  </script>
+</body>
+</html>
