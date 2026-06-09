@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlowSync — Work Smarter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f9f9fb;
+      --white: #ffffff;
+      --text: #0f0f1a;
+      --muted: #6b6b80;
+      --border: #e8e8f0;
+      --accent: #4f46e5;
+      --accent-light: #ede9fe;
+      --accent2: #06b6d4;
+      --accent3: #f59e0b;
+      --green: #10b981;
+      --card: #ffffff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(249,249,251,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 5%;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 16px; height: 16px; fill: white; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-ghost {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .btn-ghost:hover { background: var(--border); }
+
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary:hover {
+      background: #4338ca;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 5% 100px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 36px;
+      font-weight: 300;
+      max-width: 440px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary-lg {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: white;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      padding: 13px 28px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+    }
+    .btn-primary-lg:hover {
+      background: #4338ca;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+    }
+
+    .btn-outline-lg {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      padding: 13px 28px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
+    }
+    .btn-outline-lg:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hero-trust {
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid white;
+      margin-left: -8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+    .avatar:first-child { margin-left: 0; }
+    .av1 { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+    .av2 { background: linear-gradient(135deg, #10b981, #06b6d4); }
+    .av3 { background: linear-gradient(135deg, #8b5cf6, #ec4899); }
+    .av4 { background: linear-gradient(135deg, #4f46e5, #06b6d4); }
+
+    .trust-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .trust-text strong { color: var(--text); font-weight: 600; }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative;
+    }
+
+    .dashboard-mockup {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: floatUp 6s ease-in-out infinite;
+    }
+
+    @keyframes floatUp {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .mockup-bar {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .md1 { background: #ff5f57; }
+    .md2 { background: #febc2e; }
+    .md3 { background: #28c840; }
+
+    .mockup-url {
+      margin-left: 8px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .mockup-body {
+      padding: 20px;
+    }
+
+    .mock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .mock-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .mock-badge {
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 100px;
+    }
+
+    .mock-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mock-stat {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .mock-stat-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .mock-stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .mock-chart {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+      height: 80px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      background: var(--accent-light);
+      transition: height 0.3s;
+    }
+    .bar.active { background: var(--accent); }
+
+    /* Floating cards */
+    .float-card {
+      position: absolute;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow-lg);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .float-card-1 {
+      top: -20px; right: -30px;
+      animation: floatCard1 5s ease-in-out infinite;
+    }
+
+    .float-card-2 {
+      bottom: 20px; left: -40px;
+      animation: floatCard2 7s ease-in-out infinite;
+    }
+
+    @keyframes floatCard1 {
+      0%, 100% { transform: translateY(0) rotate(2deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    @keyframes floatCard2 {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(8px) rotate(-2deg); }
+    }
+
+    .float-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .float-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .float-label { color: var(--muted); font-size: 11px; }
+
+    /* ── LOGOS ── */
+    .logos-section {
+      padding: 40px 5%;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: white;
+    }
+
+    .logos-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .logos-label {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .logo-item {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #c4c4d4;
+      letter-spacing: -0.5px;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      padding: 100px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 3vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 60px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .fi-1 { background: #ede9fe; }
+    .fi-2 { background: #cffafe; }
+    .fi-3 { background: #fef3c7; }
+    .fi-4 { background: #dcfce7; }
+    .fi-5 { background: #fce7f3; }
+    .fi-6 { background: #e0e7ff; }
+
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: var(--text);
+      padding: 80px 5%;
+    }
+
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 300;
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials {
+      padding: 100px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stars {
+      color: var(--accent3);
+      font-size: 14px;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .author-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .author-role {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── PRICING ── */
+    .pricing {
+      padding: 100px 5%;
+      background: white;
+    }
+
+    .pricing-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .pricing-header { text-align: center; margin-bottom: 60px; }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      background: var(--bg);
+      transition: all 0.3s;
+    }
+
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+    .pricing-card.popular {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: scale(1.04);
+      box-shadow: 0 20px 60px rgba(79,70,229,0.3);
+    }
+
+    .pricing-card.popular:hover { transform: scale(1.04) translateY(-4px); }
+
+    .popular-tag {
+      background: white;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+      display: inline-block;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+
+    .plan-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .plan-desc {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .plan-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .plan-price span {
+      font-size: 16px;
+      font-weight: 400;
+      opacity: 0.6;
+    }
+
+    .plan-period {
+      font-size: 12px;
+      opacity: 0.5;
+      margin-bottom: 28px;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .plan-features li {
+      font-size: 13px;
+      padding: 7px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.8;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .pricing-card.popular .plan-features li { border-bottom-color: rgba(255,255,255,0.1); }
+
+    .check { color: var(--green); font-size: 14px; }
+    .pricing-card.popular .check { color: rgba(255,255,255,0.9); }
+
+    .btn-plan {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-plan-outline {
+      background: white;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .btn-plan-outline:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+
+    .btn-plan-white {
+      background: white;
+      color: var(--accent);
+    }
+    .btn-plan-white:hover { background: var(--accent-light); }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 100px 5%;
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      color: white;
+      font-size: clamp(28px, 4vw, 48px);
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: rgba(255,255,255,0.7);
+      font-size: 17px;
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .btn-white {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      background: white;
+      border: none;
+      cursor: pointer;
+      padding: 14px 32px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--text);
+      padding: 60px 5% 32px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-top: 12px;
+      font-weight: 300;
+      max-width: 260px;
+    }
+
+    .footer-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-col ul { list-style: none; }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.2s;
+      font-weight: 300;
+    }
+    .footer-col ul li a:hover { color: white; }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 100px; }
+      .hero-visual { display: none; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      FlowSync
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="#">Docs</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#" onclick="event.preventDefault(); openModal('loginModal')" class="btn-ghost">Log in</a>
+      <a href="#" onclick="event.preventDefault(); openModal('signupModal')" class="btn-primary">Get started →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="badge-dot"></div>
+        Just launched v2.0 — See what's new
+      </div>
+      <h1>Ship faster.<br>Collaborate <span class="highlight">smarter.</span></h1>
+      <p class="hero-desc">FlowSync brings your team's tasks, docs, and workflows into one seamless workspace. Cut the chaos. Ship what matters.</p>
+      <div class="hero-actions">
+        <a href="#" onclick="event.preventDefault(); openModal('signupModal')" class="btn-primary-lg">Start for free →</a>
+        <a href="#" onclick="event.preventDefault(); openModal('demoModal')" class="btn-outline-lg">▶ Watch demo</a>
+      </div>
+      <div class="hero-trust">
+        <div class="avatar-stack">
+          <div class="avatar av1">A</div>
+          <div class="avatar av2">B</div>
+          <div class="avatar av3">C</div>
+          <div class="avatar av4">D</div>
+        </div>
+        <p class="trust-text">Trusted by <strong>12,000+</strong> teams worldwide</p>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="float-card float-card-1">
+        <div class="float-icon" style="background:#dcfce7;">✅</div>
+        <div class="float-val">98.9%</div>
+        <div class="float-label">Uptime SLA</div>
+      </div>
+
+      <div class="dashboard-mockup">
+        <div class="mockup-bar">
+          <div class="mock-dot md1"></div>
+          <div class="mock-dot md2"></div>
+          <div class="mock-dot md3"></div>
+          <div class="mockup-url">app.flowsync.io/dashboard</div>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-header">
+            <span class="mock-title">Team Dashboard</span>
+            <span class="mock-badge">● Live</span>
+          </div>
+          <div class="mock-stats">
+            <div class="mock-stat">
+              <div class="mock-stat-val">48</div>
+              <div class="mock-stat-label">Tasks Done</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-val">12</div>
+              <div class="mock-stat-label">In Progress</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-val">3</div>
+              <div class="mock-stat-label">Blocked</div>
+            </div>
+          </div>
+          <div class="mock-chart">
+            <div class="bar" style="height:40%"></div>
+            <div class="bar" style="height:60%"></div>
+            <div class="bar active" style="height:80%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar active" style="height:90%"></div>
+            <div class="bar" style="height:70%"></div>
+            <div class="bar" style="height:65%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="float-card float-card-2">
+        <div class="float-icon" style="background:#ede9fe;">🚀</div>
+        <div class="float-val">+34%</div>
+        <div class="float-label">Productivity boost</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGOS -->
+  <div class="logos-section">
+    <div class="logos-inner">
+      <span class="logos-label">Trusted by teams at</span>
+      <span class="logo-item">Notion</span>
+      <span class="logo-item">Vercel</span>
+      <span class="logo-item">Stripe</span>
+      <span class="logo-item">Linear</span>
+      <span class="logo-item">Figma</span>
+      <span class="logo-item">Loom</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="section-label">Features</div>
+    <h2>Everything your team needs.<br>Nothing it doesn't.</h2>
+    <p class="section-desc">Built for modern teams who move fast. FlowSync adapts to how you work, not the other way around.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon fi-1">⚡</div>
+        <div class="feature-title">Real-time Collaboration</div>
+        <div class="feature-desc">Work together simultaneously on tasks and documents. See changes as they happen, no refresh needed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-2">🔗</div>
+        <div class="feature-title">Smart Integrations</div>
+        <div class="feature-desc">Connect with 100+ tools including Slack, GitHub, Figma, and Google Workspace in seconds.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-3">📊</div>
+        <div class="feature-title">Advanced Analytics</div>
+        <div class="feature-desc">Understand team velocity, bottlenecks, and delivery patterns with beautiful built-in reports.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-4">🛡️</div>
+        <div class="feature-title">Enterprise Security</div>
+        <div class="feature-desc">SOC 2 Type II certified. SSO, SAML, audit logs, and granular permissions out of the box.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-5">🤖</div>
+        <div class="feature-title">AI Automation</div>
+        <div class="feature-desc">Let AI handle repetitive tasks — auto-assign, summarize threads, and suggest next actions.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-6">📱</div>
+        <div class="feature-title">Mobile First</div>
+        <div class="feature-desc">Full-featured iOS and Android apps. Stay in sync wherever your team is working from.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-section">
+    <div class="stats-inner">
+      <div>
+        <div class="stat-num">12K+</div>
+        <div class="stat-label">Teams using FlowSync</div>
+      </div>
+      <div>
+        <div class="stat-num">98.9%</div>
+        <div class="stat-label">Uptime guaranteed</div>
+      </div>
+      <div>
+        <div class="stat-num">4.9★</div>
+        <div class="stat-label">Average rating</div>
+      </div>
+      <div>
+        <div class="stat-num">2min</div>
+        <div class="stat-label">Average setup time</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div style="text-align:center; margin-bottom:60px;">
+      <div class="section-label">Testimonials</div>
+      <h2>Teams love FlowSync</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"FlowSync completely transformed how our engineering team ships. We cut our sprint planning time in half and everyone is aligned."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg,#4f46e5,#06b6d4)">S</div>
+          <div>
+            <div class="author-name">Sarah Chen</div>
+            <div class="author-role">VP Engineering, Vercel</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"The AI automation alone saves us 3+ hours per week. It's like having a project manager built into the tool itself."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg,#10b981,#06b6d4)">M</div>
+          <div>
+            <div class="author-name">Marcus Williams</div>
+            <div class="author-role">Product Lead, Linear</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">"We tried Jira, Asana, and Monday. Nothing comes close to FlowSync's simplicity without sacrificing power."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar" style="background: linear-gradient(135deg,#f59e0b,#ef4444)">P</div>
+          <div>
+            <div class="author-name">Priya Sharma</div>
+            <div class="author-role">CTO, Founding team</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="pricing-inner">
+      <div class="pricing-header">
+        <div class="section-label">Pricing</div>
+        <h2>Simple, honest pricing</h2>
+        <p style="color:var(--muted); font-size:16px; font-weight:300; margin-top:8px;">No hidden fees. Cancel anytime.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-desc">Perfect for small teams just getting started.</div>
+          <div class="plan-price">$0<span>/mo</span></div>
+          <div class="plan-period">Free forever</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Up to 5 members</li>
+            <li><span class="check">✓</span> 3 projects</li>
+            <li><span class="check">✓</span> Basic analytics</li>
+            <li><span class="check">✓</span> 5GB storage</li>
+          </ul>
+          <button class="btn-plan btn-plan-outline">Get started free</button>
+        </div>
+        <div class="pricing-card popular">
+          <div class="popular-tag">MOST POPULAR</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-desc">For growing teams that need more power.</div>
+          <div class="plan-price">$12<span>/mo</span></div>
+          <div class="plan-period">per member, billed annually</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Unlimited members</li>
+            <li><span class="check">✓</span> Unlimited projects</li>
+            <li><span class="check">✓</span> Advanced analytics</li>
+            <li><span class="check">✓</span> AI automation</li>
+            <li><span class="check">✓</span> 100GB storage</li>
+          </ul>
+          <button class="btn-plan btn-plan-white">Start free trial</button>
+        </div>
+        <div class="pricing-card">
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-desc">For large orgs needing security & control.</div>
+          <div class="plan-price">Custom</div>
+          <div class="plan-period">Contact us for pricing</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Everything in Pro</li>
+            <li><span class="check">✓</span> SSO & SAML</li>
+            <li><span class="check">✓</span> Audit logs</li>
+            <li><span class="check">✓</span> Dedicated support</li>
+            <li><span class="check">✓</span> Unlimited storage</li>
+          </ul>
+          <button class="btn-plan btn-plan-outline">Contact sales</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Ready to flow?</h2>
+    <p>Join 12,000+ teams already using FlowSync. Set up in under 2 minutes.</p>
+    <a href="#" onclick="event.preventDefault(); openModal('signupModal')" class="btn-white">Start for free — no card needed →</a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            FlowSync
+          </div>
+          <p>Bringing clarity to the way modern teams work, collaborate, and ship great products.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Pricing</a></li>
+            <li><a href="#">Changelog</a></li>
+            <li><a href="#">Roadmap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Security</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 FlowSync. All rights reserved.</span>
+        <span>Made with ♥ for productive teams</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal-overlay" onclick="closeModal('loginModal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+      <div class="modal-logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        FlowSync
+      </div>
+      <h3 class="modal-title">Welcome back</h3>
+      <p class="modal-sub">Sign in to your account</p>
+      <div class="modal-field">
+        <label>Email</label>
+        <input type="email" placeholder="you@company.com"/>
+      </div>
+      <div class="modal-field">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••"/>
+      </div>
+      <div class="modal-forgot"><a href="#" onclick="return false">Forgot password?</a></div>
+      <button class="modal-btn" onclick="showToast('Logged in successfully! 🎉')">Log in</button>
+      <p class="modal-switch">Don't have an account? <a href="#" onclick="switchModal('loginModal','signupModal')">Sign up free</a></p>
+    </div>
+  </div>
+
+  <!-- SIGNUP MODAL -->
+  <div id="signupModal" class="modal-overlay" onclick="closeModal('signupModal')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('signupModal')">✕</button>
+      <div class="modal-logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        FlowSync
+      </div>
+      <h3 class="modal-title">Get started free</h3>
+      <p class="modal-sub">No credit card required</p>
+      <div class="modal-field">
+        <label>Full name</label>
+        <input type="text" placeholder="Your name"/>
+      </div>
+      <div class="modal-field">
+        <label>Work email</label>
+        <input type="email" placeholder="you@company.com"/>
+      </div>
+      <div class="modal-field">
+        <label>Password</label>
+        <input type="password" placeholder="Min. 8 characters"/>
+      </div>
+      <button class="modal-btn" onclick="showToast('Account created! Welcome to FlowSync 🚀')">Create account</button>
+      <p class="modal-switch">Already have an account? <a href="#" onclick="switchModal('signupModal','loginModal')">Log in</a></p>
+    </div>
+  </div>
+
+  <!-- DEMO MODAL -->
+  <div id="demoModal" class="modal-overlay" onclick="closeModal('demoModal')">
+    <div class="modal-box modal-wide" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal('demoModal')">✕</button>
+      <h3 class="modal-title">Product Demo</h3>
+      <p class="modal-sub">See how FlowSync works in under 2 minutes</p>
+      <div class="demo-video">
+        <div class="demo-play">▶</div>
+        <p style="color:rgba(255,255,255,0.6); font-size:13px; margin-top:12px;">Click to play demo</p>
+      </div>
+      <button class="modal-btn" onclick="closeModal('demoModal'); openModal('signupModal')">Start for free →</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <style>
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.open { display: flex; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      margin: 20px;
+    }
+
+    .modal-wide { max-width: 560px; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: var(--bg);
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--border); }
+
+    .modal-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .modal-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-weight: 300;
+    }
+
+    .modal-field {
+      margin-bottom: 16px;
+    }
+
+    .modal-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .modal-field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .modal-field input:focus { border-color: var(--accent); background: white; }
+
+    .modal-forgot {
+      text-align: right;
+      margin-bottom: 20px;
+      margin-top: -8px;
+    }
+    .modal-forgot a { font-size: 12px; color: var(--accent); text-decoration: none; }
+
+    .modal-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+    .modal-btn:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
+
+    .modal-switch {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .modal-switch a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+    .demo-video {
+      background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+      border-radius: 12px;
+      height: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+
+    .demo-play {
+      width: 60px; height: 60px;
+      background: rgba(79,70,229,0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+      transition: all 0.2s;
+    }
+    .demo-video:hover .demo-play { background: var(--accent); transform: scale(1.1); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--text);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  </style>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function switchModal(closeId, openId) {
+      closeModal(closeId);
+      setTimeout(() => openModal(openId), 150);
+    }
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+      // close any open modal
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+      document.body.style.overflow = '';
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+        document.body.style.overflow = '';
+      }
+    });
+  </script>
+
+</body>
+</html>
