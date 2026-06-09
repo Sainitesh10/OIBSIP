@@ -1,81 +1,93 @@
-# OIBSIP — Oasis Infobyte Web Development Internship
+# OIBSIP — Oasis Infobyte Web Development Internship Tasks
 
-Welcome to my submission repository for the **Oasis Infobyte Web Development & Design Internship**. This repository hosts my completed tasks for the internship under my student ID.
-
-*   **Intern Name:** Sai Nitesh
-*   **Domain:** Web Development & Design
-*   **Repository Name:** OIBSIP
-*   **Live Portfolio:** [sainitesh.vercel.app](https://sainitesh.vercel.app/)
+This repository hosts my completed tasks for the **Oasis Infobyte Web Development & Design Internship**. The repository has been restructured to only contain clean, verified task code.
 
 ---
 
-## 🚀 Repository Structure & Tasks
-
-To make evaluation simple and streamlined, this repository includes a central, premium **Glassmorphic Cyberpunk Dashboard** as the main landing page (`index.html`). You can launch any task directly from the dashboard.
+## 📂 Repository Structure
 
 ```bash
 OIBSIP/
 │
-├── index.html                   # Central Dashboard (Portal for all tasks)
-├── README.md                    # Documentation
-├── .gitignore                   # Exclude system files
+├── README.md                    # Repository documentation
+├── .gitignore                   # Excludes system files
 │
 ├── level-1/
 │   ├── landing-page/
 │   │   └── index.html           # Task 1: FlowSync Landing Page
 │   │
 │   ├── portfolio/
-│   │   └── index.html           # Task 2: Personal Portfolio (Sai Nitesh)
+│   │   └── index.html           # Task 2: Personal Developer Portfolio
 │   │
 │   └── temperature-converter/
-│       └── index.html           # Task 3: Ambient Temperature Converter
+│       └── index.html           # Task 3: Temperature Converter
 │
 └── level-2/
-    └── calculator/
-        └── index.html           # Task 1: CALC//SYS Cyberpunk Calculator
+    ├── calculator/
+    │   └── index.html           # Task 1: Cyberpunk Calculator (CALC//SYS)
+    │
+    ├── tribute/
+    │   └── index.html           # Task 2: Hardik Pandya Tribute Page
+    │
+    ├── todo-app/
+    │   └── index.html           # Task 3: TaskFlow (To-Do Web App)
+    │
+    └── login-auth/
+        └── index.html           # Task 4: AuthFlow (Login Authentication)
 ```
 
 ---
 
 ## 🛠️ Completed Tasks Details
 
-### 🟢 Level 1: Complete (3 / 3 Tasks Done)
+### 🟢 Level 1 Tasks
 
-#### Task 1: Landing Page (FlowSync)
-*   **Description:** A landing page built for a productivity app named FlowSync. 
-*   **Key Features:** Modern typography, dynamic CSS animations, responsive pricing grid, customer testimonials, and sleek navigations.
+#### 1. Landing Page (FlowSync)
+*   **Description:** A modern, high-converting product landing page for a fictional productivity app called FlowSync.
+*   **Key Features:** Beautiful custom typography, hover transitions, dynamic testimonial cards, responsive price plans, and structured navigation.
 *   **Tech Stack:** HTML5, Custom Vanilla CSS.
 
-#### Task 2: Personal Portfolio
-*   **Description:** A professional personal portfolio page displaying personal details, background, projects, skill charts, and contacts.
-*   **Key Features:** Interactive layout, responsive layout.
-*   **Live Demo:** [https://sainitesh.vercel.app/](https://sainitesh.vercel.app/)
+#### 2. Personal Portfolio
+*   **Description:** An interactive terminal-styled developer portfolio page outlining skills, projects, experience, and contact forms.
+*   **Live Demo:** [sainitesh.vercel.app](https://sainitesh.vercel.app/)
+*   **Tech Stack:** HTML5, CSS3, Vanilla JavaScript.
 
-#### Task 3: Temperature Converter
-*   **Description:** An interactive calculator translating temperatures bidirectionally across Celsius, Fahrenheit, and Kelvin scales.
-*   **Key Features:** CSS floating background formulas, active card color transformations (blue/orange/purple), output formatting, and a detailed formula breakdown explaining the conversion logic.
-*   **Tech Stack:** HTML5, CSS Grid & Flexbox, JavaScript.
+#### 3. Temperature Converter
+*   **Description:** An interactive bidirectionally translating temperature converter.
+*   **Key Features:** Support for Celsius, Fahrenheit, and Kelvin scales, mathematical formula breakdown explanations, custom background ambient animations, and active state transformations.
+*   **Tech Stack:** HTML5, CSS3 Grid/Flexbox, JavaScript.
 
-### 🟡 Level 2: In-Progress (1 / 3 Tasks Done)
+### 🟡 Level 2 Tasks
 
-#### Task 1: Cyberpunk Calculator (CALC//SYS)
-*   **Description:** A high-fidelity retro-futuristic grid calculator.
-*   **Key Features:** Operation chaining, overflow scientific formatting (limiting output length safely), Division by Zero handling (`ERR:DIV0`), keyboard input support, blinking status dots, and ripple click animations.
-*   **Tech Stack:** HTML5, CSS Variables & Grid, Vanilla JavaScript (Event Listeners & Math limits).
+#### 1. Calculator (CALC//SYS)
+*   **Description:** A retro-themed cyberpunk grid calculator.
+*   **Key Features:** Chained math calculations, Division by Zero safety handling, exponential conversion limits for long digits, visual ripple animations, and full keyboard input support.
+*   **Tech Stack:** HTML5, Custom CSS, Vanilla JavaScript.
+
+#### 2. Tribute Page
+*   **Description:** A rich timeline and content tribute page honoring Hardik Pandya, "The Comeback King".
+*   **Key Features:** Responsive grids, custom layout cards, timeline tracking, and aesthetic media integration.
+*   **Tech Stack:** HTML5, CSS3.
+
+#### 3. Todo Web App
+*   **Description:** A functional task tracking web application named TaskFlow.
+*   **Key Features:** Live clocks, progress bars showing completion percentage, distinct lists for pending and completed tasks, input validation, edits, and deletions.
+*   **Tech Stack:** HTML5, CSS3, JavaScript.
+
+#### 4. Login Authentication
+*   **Description:** A secure, simulated client login flow and dashboard named AuthFlow.
+*   **Key Features:** Multi-page switching (Login, Registration, OTP Validation, Password Reset), password strength indicators, OTP inputs, validation errors, and custom dashboards.
+*   **Tech Stack:** HTML5, CSS3, JavaScript.
 
 ---
 
-## 🖥️ How to Run Locally
+## 🖥️ Running Locally
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/YOUR_USERNAME/OIBSIP.git
+    git clone https://github.com/Sainitesh10/OIBSIP.git
     cd OIBSIP
     ```
-2.  **Launch the Dashboard:**
-    *   Simply double-click the root `index.html` file to open it in your browser.
-    *   Navigate through the completed tasks by clicking the **"Launch App"** buttons on each task card.
-
----
-
-*Thank you to the Oasis Infobyte Team for this learning opportunity!*
+2.  **Launch any Task:**
+    *   Navigate to the directory of the task (e.g. `level-1/landing-page/`).
+    *   Open `index.html` in your web browser to run it.
