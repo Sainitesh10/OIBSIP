@@ -574,7 +574,12 @@
   </div>
 
   <script>
-    // Update badge when unit changes
+    /**
+     * Interactive Temperature Converter Script
+     * Handles real-time bidirectional temperature conversions between Celsius, Fahrenheit, and Kelvin.
+     */
+
+    // Event listener: Updates the badge icon dynamically inside the input box when the selected input unit changes
     document.querySelectorAll('input[name="unit"]').forEach(radio => {
       radio.addEventListener('change', () => {
         const symbols = { C: '°C', F: '°F', K: 'K' };
@@ -582,12 +587,16 @@
       });
     });
 
+    /**
+     * Primary conversion function.
+     * Validates input, calculates target scales, updates the UI cards, and shows formulas.
+     */
     function convert() {
       const input = document.getElementById('tempInput').value.trim();
       const error = document.getElementById('errorMsg');
       const results = document.getElementById('results');
 
-      // Validate
+      // Validation check: Validate that the input is a valid non-empty float number
       if (input === '' || isNaN(Number(input))) {
         error.classList.add('show');
         results.classList.remove('show');
@@ -600,6 +609,7 @@
 
       let C, F, K;
 
+      // Bidirectional conversion logic based on selected input scale
       if (unit === 'C') {
         C = val;
         F = (val * 9/5) + 32;
@@ -614,22 +624,23 @@
         K = val;
       }
 
-      // Format number
+      // Format outputs: Round to 4 decimal places where necessary to avoid floating-point errors
       const fmt = n => {
         if (Number.isInteger(n)) return n.toString();
         return parseFloat(n.toFixed(4)).toString();
       };
 
+      // Populate values in the UI result cards
       document.getElementById('val-C').textContent = fmt(C) + ' °C';
       document.getElementById('val-F').textContent = fmt(F) + ' °F';
       document.getElementById('val-K').textContent = fmt(K) + ' K';
 
-      // Highlight active card
+      // Visual helper: Highlight the input card with a warm badge/border
       ['C','F','K'].forEach(u => {
         document.getElementById('card-' + u).classList.toggle('active', u === unit);
       });
 
-      // Formula explanation
+      // Populate step-by-step formula explanations inside the result details panel
       const formulas = {
         C: `°C → °F : (${fmt(C)} × 9/5) + 32 = ${fmt(F)}°F\n°C → K  : ${fmt(C)} + 273.15 = ${fmt(K)} K`,
         F: `°F → °C : (${fmt(F)} − 32) × 5/9 = ${fmt(C)}°C\n°F → K  : (${fmt(F)} − 32) × 5/9 + 273.15 = ${fmt(K)} K`,
@@ -638,11 +649,16 @@
       document.getElementById('formulaBar').style.whiteSpace = 'pre';
       document.getElementById('formulaBar').textContent = formulas[unit];
 
+      // Reset showing status to re-trigger slide-up animations smoothly
       results.classList.remove('show');
-      void results.offsetWidth; // trigger reflow for animation
+      void results.offsetWidth; // Force DOM reflow to restart CSS animations
       results.classList.add('show');
     }
 
+    /**
+     * Reset function.
+     * Clears input values, validation errors, and output cards to restore initial state.
+     */
     function reset() {
       document.getElementById('tempInput').value = '';
       document.getElementById('results').classList.remove('show');
@@ -651,7 +667,7 @@
       document.getElementById('unitBadge').textContent = '°C';
     }
 
-    // Allow Enter key
+    // Keyboard support listener: Allows conversion trigger by pressing 'Enter' while typing in input field
     document.getElementById('tempInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') convert();
     });

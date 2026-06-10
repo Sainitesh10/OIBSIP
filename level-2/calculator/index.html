@@ -400,17 +400,25 @@
   </div>
 
   <script>
-    let current = '0';
-    let previous = '';
-    let operator = null;
-    let shouldReset = false;
-    let expression = '';
+    /**
+     * CALC//SYS Core Script
+     * Controls calculator memory operations, keyboard mappings, and rendering.
+     */
+    let current = '0';         // Stores the currently typed number value
+    let previous = '';        // Stores the previous number value before operator selection
+    let operator = null;       // Stores the active mathematical operator symbol
+    let shouldReset = false;   // Flag to signal clearing screen on next number keypress
+    let expression = '';       // Stores the mathematical string representation (e.g. "5 + 2 =")
 
+    // Element bindings
     const display = document.getElementById('display');
     const exprEl  = document.getElementById('expr');
 
+    /**
+     * Updates screen display.
+     * Trims long outputs to a scientific/precision formats to prevent overflow.
+     */
     function updateDisplay(val) {
-      // Trim long numbers
       let str = String(val);
       if (str.length > 12) {
         let num = parseFloat(val);
@@ -421,19 +429,29 @@
       display.classList.remove('error');
     }
 
+    /**
+     * Appends number inputs to the current input string.
+     */
     function appendNum(n) {
       if (shouldReset) { current = n; shouldReset = false; }
       else current = current === '0' ? n : current + n;
-      if (current.length > 12) return;
+      if (current.length > 12) return; // Prevent inputting more than 12 digits
       updateDisplay(current);
     }
 
+    /**
+     * Appends dot to create floats, preventing double dots.
+     */
     function appendDot() {
       if (shouldReset) { current = '0.'; shouldReset = false; }
       else if (!current.includes('.')) current += '.';
       updateDisplay(current);
     }
 
+    /**
+     * Mappings for operator button clicks (+, -, *, /).
+     * Automatically chains previous calculation if clicked repeatedly.
+     */
     function setOp(op) {
       if (operator && !shouldReset) calculate(true);
       previous = current;
@@ -444,6 +462,10 @@
       exprEl.textContent = expression;
     }
 
+    /**
+     * Performs calculations.
+     * Handles division-by-zero checks and precision formats.
+     */
     function calculate(chained = false) {
       if (!operator || shouldReset) return;
       let a = parseFloat(previous);
@@ -458,6 +480,7 @@
         case '-': result = a - b; break;
         case '*': result = a * b; break;
         case '/':
+          // Division by zero safety check
           if (b === 0) {
             display.innerHTML = 'ERR:DIV0<span class="cursor"></span>';
             display.classList.add('error');
@@ -468,7 +491,7 @@
           result = a / b; break;
       }
 
-      // Handle floating point
+      // Fix JavaScript floating point rounding issues (e.g. 0.1 + 0.2)
       result = parseFloat(result.toPrecision(10));
 
       exprEl.textContent = expression;
@@ -479,6 +502,9 @@
       if (!chained) { previous = ''; expression = ''; }
     }
 
+    /**
+     * AC - Clears memory registers and displays.
+     */
     function clearAll() {
       current = '0'; previous = ''; operator = null;
       shouldReset = false; expression = '';
@@ -486,17 +512,26 @@
       exprEl.textContent = '';
     }
 
+    /**
+     * Negates the current input value (+/-).
+     */
     function toggleSign() {
       if (current === '0') return;
       current = String(parseFloat(current) * -1);
       updateDisplay(current);
     }
 
+    /**
+     * Performs percentage calculation.
+     */
     function percentage() {
       current = String(parseFloat(current) / 100);
       updateDisplay(current);
     }
 
+    /**
+     * Deletes the last character typed.
+     */
     function backspace() {
       if (shouldReset) return;
       if (current.length > 1) current = current.slice(0, -1);
@@ -504,7 +539,7 @@
       updateDisplay(current);
     }
 
-    // Ripple effect
+    // Button visual feedback: creates dynamic ripple span elements inside buttons on click
     document.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         const r = document.createElement('span');
@@ -519,7 +554,7 @@
       });
     });
 
-    // Keyboard support (bonus)
+    // Keyboard support: maps standard numeric, backspace, operators and enter keys to calculator functions
     document.addEventListener('keydown', e => {
       if (e.key >= '0' && e.key <= '9') appendNum(e.key);
       else if (e.key === '.') appendDot();

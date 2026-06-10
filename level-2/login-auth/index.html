@@ -623,21 +623,29 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ── State ──
-    let users = []; // simulated user DB
-    let currentUser = null;
-    let pendingUser = null; // user waiting for email verification
-    let generatedOtp = '';
-    let otpTimer = null;
-    let forgotEmail = '';
+    /**
+     * AuthFlow Session & Database Simulation State
+     * Mocks a backend database and user session state in-memory.
+     */
+    let users = [];         // Simulated user database array
+    let currentUser = null; // Active signed-in session user object
+    let pendingUser = null; // Staged registration details awaiting OTP verification
+    let generatedOtp = '';  // 6-digit verification code string
+    let otpTimer = null;    // OTP countdown interval handler
+    let forgotEmail = '';   // Tracks target email for password resets
 
-    // ── Navigation ──
+    /**
+     * Multi-page routing controller.
+     * Hides active layout views and shows the target layout page.
+     */
     function goTo(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
     }
 
-    // ── Toast ──
+    /**
+     * Toast notification utility.
+     */
     function showToast(msg, type='info') {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -646,20 +654,23 @@
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // ── Utilities ──
+    // RegEx validator: Checks if string matches standard email formatting
     function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
 
+    // Password visibility toggle wrapper
     function togglePwd(id, el) {
       const inp = document.getElementById(id);
       if (inp.type === 'password') { inp.type = 'text'; el.textContent = '🙈'; }
       else { inp.type = 'password'; el.textContent = '👁'; }
     }
 
+    // Dynamic error state handler
     function setErr(id, show) {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('show', show);
     }
 
+    // Visual feedback handler: Sets border styling to success (green) or error (red)
     function setInpState(id, state) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -667,17 +678,21 @@
       if (state) el.classList.add(state);
     }
 
+    // Generates a mock 6-digit numeric OTP code
     function genOtp() { return String(Math.floor(100000 + Math.random() * 900000)); }
 
-    // ── Password Strength ──
+    /**
+     * Password Strength Checker Algorithm.
+     * Evaluates length, caps, numbers, and symbols to assign visual scores.
+     */
     function checkStrength(pwd) {
       const fill = document.getElementById('strength-fill');
       const label = document.getElementById('strength-label');
       let score = 0;
-      if (pwd.length >= 8) score++;
-      if (/[A-Z]/.test(pwd)) score++;
-      if (/[0-9]/.test(pwd)) score++;
-      if (/[^A-Za-z0-9]/.test(pwd)) score++;
+      if (pwd.length >= 8) score++;            // Criteria 1: Minimum length check
+      if (/[A-Z]/.test(pwd)) score++;           // Criteria 2: Uppercase check
+      if (/[0-9]/.test(pwd)) score++;           // Criteria 3: Digit check
+      if (/[^A-Za-z0-9]/.test(pwd)) score++;    // Criteria 4: Special character check
 
       const configs = [
         { w:'0%', color:'transparent', text:'Enter a password' },
@@ -693,7 +708,10 @@
       label.style.color = c.color;
     }
 
-    // ── OTP Inputs ──
+    /**
+     * OTP field focus handlers.
+     * Automatically shifts cursor focus to the next field when typing.
+     */
     function otpMove(i) {
       const el = document.getElementById('otp'+i);
       el.classList.toggle('filled', el.value !== '');
@@ -706,6 +724,7 @@
     function getOtp() { return [0,1,2,3,4,5].map(i=>document.getElementById('otp'+i).value).join(''); }
     function clearOtp() { [0,1,2,3,4,5].forEach(i=>{ const el=document.getElementById('otp'+i); el.value=''; el.classList.remove('filled'); }); }
 
+    // OTP Reset fields handlers
     function rotpMove(i) {
       const el = document.getElementById('rotp'+i);
       el.classList.toggle('filled', el.value !== '');
@@ -717,7 +736,9 @@
     }
     function getRotp() { return [0,1,2,3,4,5].map(i=>document.getElementById('rotp'+i).value).join(''); }
 
-    // ── OTP Timer ──
+    /**
+     * OTP code resend countdown routine.
+     */
     function startOtpTimer() {
       let secs = 30;
       document.getElementById('resend-timer').style.display = 'inline';
@@ -735,6 +756,9 @@
       }, 1000);
     }
 
+    /**
+     * Triggers simulated OTP resend event.
+     */
     function resendOtp() {
       generatedOtp = genOtp();
       showToast(`📨 New OTP sent! (Demo OTP: ${generatedOtp})`, 'info');
@@ -742,12 +766,15 @@
       startOtpTimer();
     }
 
-    // ── LOGIN ──
+    /**
+     * Login authentication handler.
+     */
     function doLogin() {
       const email = document.getElementById('login-email').value.trim();
       const pwd = document.getElementById('login-pwd').value;
       let valid = true;
 
+      // Inputs validation checks
       if (!isEmail(email)) { setErr('login-email-err', true); setInpState('login-email','error'); valid=false; }
       else { setErr('login-email-err', false); setInpState('login-email','success'); }
 
@@ -756,6 +783,7 @@
 
       if (!valid) return;
 
+      // Trigger visual load spinner
       const btn = document.getElementById('login-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span>Signing in...';
@@ -778,7 +806,9 @@
       }, 1200);
     }
 
-    // ── REGISTER ──
+    /**
+     * Registration authentication handler.
+     */
     function doRegister() {
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
@@ -786,6 +816,7 @@
       const pwd2 = document.getElementById('reg-pwd2').value;
       let valid = true;
 
+      // Inputs validation checks
       if (name.length < 2) { setErr('reg-name-err', true); setInpState('reg-name','error'); valid=false; }
       else { setErr('reg-name-err', false); setInpState('reg-name','success'); }
 
@@ -800,6 +831,7 @@
 
       if (!valid) return;
 
+      // Check duplicate accounts
       if (users.find(u => u.email === email)) {
         showToast('⚠️ Email already registered!', 'error');
         setInpState('reg-email','error'); return;
@@ -813,6 +845,7 @@
         btn.disabled = false;
         btn.innerHTML = 'Create Account';
 
+        // Stage details in pending status
         pendingUser = { name, email, password: pwd, lastLogin: null };
         generatedOtp = genOtp();
 
@@ -825,12 +858,15 @@
       }, 1200);
     }
 
-    // ── VERIFY EMAIL ──
+    /**
+     * Verification code checker.
+     */
     function doVerify() {
       const otp = getOtp();
       if (otp.length < 6) { showToast('⚠️ Enter the complete 6-digit code', 'error'); return; }
       if (otp !== generatedOtp) { showToast('❌ Incorrect OTP. Try again.', 'error'); clearOtp(); document.getElementById('otp0').focus(); return; }
 
+      // Registration complete: Add details to DB array
       users.push(pendingUser);
       currentUser = pendingUser;
       currentUser.lastLogin = new Date().toLocaleString('en-IN');
@@ -840,7 +876,9 @@
       showToast('🎉 Email verified! Account created.', 'success');
     }
 
-    // ── FORGOT PASSWORD ──
+    /**
+     * simulated code trigger for forgotten password requests.
+     */
     function doForgot() {
       const email = document.getElementById('forgot-email').value.trim();
       if (!isEmail(email)) { setErr('forgot-email-err', true); return; }
@@ -853,7 +891,9 @@
       goTo('page-reset');
     }
 
-    // ── RESET PASSWORD ──
+    /**
+     * Code verification check and password resets.
+     */
     function doReset() {
       const otp = getRotp();
       const pwd = document.getElementById('new-pwd').value;
@@ -873,7 +913,9 @@
       setTimeout(() => goTo('page-login'), 1500);
     }
 
-    // ── DASHBOARD ──
+    /**
+     * Dashboard data bind routine.
+     */
     function loadDashboard() {
       const u = currentUser;
       document.getElementById('dash-avatar').textContent = u.name[0].toUpperCase();
@@ -886,7 +928,9 @@
       goTo('page-dashboard');
     }
 
-    // ── LOGOUT ──
+    /**
+     * Session logout routine.
+     */
     function doLogout() {
       currentUser = null;
       document.getElementById('login-email').value = '';
@@ -895,7 +939,7 @@
       showToast('👋 Signed out successfully', 'info');
     }
 
-    // Enter key support
+    // Keyboard support event listeners
     document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
     document.getElementById('reg-pwd2').addEventListener('keydown', e => { if(e.key==='Enter') doRegister(); });
     document.getElementById('forgot-email').addEventListener('keydown', e => { if(e.key==='Enter') doForgot(); });

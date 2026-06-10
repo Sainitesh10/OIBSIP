@@ -561,10 +561,14 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    let tasks = [];
-    let idCounter = 0;
+    /**
+     * TaskFlow State Manager
+     * Handles local data storage, updates metrics, and triggers DOM renders.
+     */
+    let tasks = [];       // In-memory array containing todo items
+    let idCounter = 0;    // Tracks unique ID generation for new items
 
-    // Live clock
+    // Ticker logic: Updates and displays date/time clock dynamically
     function updateClock() {
       const now = new Date();
       const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
@@ -573,8 +577,9 @@
       document.getElementById('datetimeBar').textContent = `📅 ${date}  ·  🕐 ${time}`;
     }
     updateClock();
-    setInterval(updateClock, 1000);
+    setInterval(updateClock, 1000); // Trigger clock tick every second
 
+    // Date formatting helper for list item metadata
     function formatDateTime(date) {
       return new Date(date).toLocaleString('en-IN', {
         day:'2-digit', month:'short', year:'numeric',
@@ -582,6 +587,10 @@
       });
     }
 
+    /**
+     * Adds a new task to the list.
+     * Validates input length and non-emptiness.
+     */
     function addTask() {
       const input = document.getElementById('taskInput');
       const text = input.value.trim();
@@ -596,13 +605,17 @@
         editing: false
       };
 
-      tasks.unshift(task);
+      tasks.unshift(task); // Prepend new task to the front of list
       input.value = '';
       input.focus();
       renderAll();
       showToast('✅ Task added!');
     }
 
+    /**
+     * Toggles complete status of a task.
+     * Records timestamps on check.
+     */
     function toggleComplete(id) {
       const task = tasks.find(t => t.id === id);
       if (!task) return;
@@ -612,10 +625,15 @@
       showToast(task.completed ? '🎉 Task completed!' : '↩️ Task moved back to pending');
     }
 
+    /**
+     * Removes a task from the list.
+     * Triggers slide-out CSS animations before deleting data.
+     */
     function deleteTask(id) {
       const el = document.getElementById('task-' + id);
       if (el) {
         el.classList.add('removing');
+        // Wait for CSS slideOut animation (250ms) to complete before state deletion
         setTimeout(() => {
           tasks = tasks.filter(t => t.id !== id);
           renderAll();
@@ -624,17 +642,23 @@
       showToast('🗑 Task deleted');
     }
 
+    /**
+     * Enables text editing mode for a specific task card.
+     */
     function startEdit(id) {
-      tasks.forEach(t => t.editing = false);
+      tasks.forEach(t => t.editing = false); // Cancel any other open edits
       const task = tasks.find(t => t.id === id);
       if (task) task.editing = true;
       renderAll();
       setTimeout(() => {
         const inp = document.getElementById('edit-' + id);
-        if (inp) { inp.focus(); inp.select(); }
+        if (inp) { inp.focus(); inp.select(); } // Focus and highlight text automatically
       }, 50);
     }
 
+    /**
+     * Saves modifications made in edit mode.
+     */
     function saveEdit(id) {
       const inp = document.getElementById('edit-' + id);
       const task = tasks.find(t => t.id === id);
@@ -647,6 +671,9 @@
       showToast('✏️ Task updated!');
     }
 
+    /**
+     * Deletes all tasks marked as completed.
+     */
     function clearCompleted() {
       const count = tasks.filter(t => t.completed).length;
       if (!count) { showToast('Nothing to clear!'); return; }
@@ -655,27 +682,33 @@
       showToast(`🗑 Cleared ${count} completed task${count > 1 ? 's' : ''}`);
     }
 
+    /**
+     * Triggers complete recalculation of metrics and updates DOM templates.
+     */
     function renderAll() {
       const pending = tasks.filter(t => !t.completed);
       const completed = tasks.filter(t => t.completed);
 
-      // Stats
+      // Update counter badges
       document.getElementById('totalCount').textContent = tasks.length;
       document.getElementById('pendingCount').textContent = pending.length;
       document.getElementById('doneCount').textContent = completed.length;
       document.getElementById('pendingBadge').textContent = pending.length;
       document.getElementById('doneBadge').textContent = completed.length;
 
-      // Progress
+      // Recalculate and render completion bar percentage
       const pct = tasks.length ? Math.round((completed.length / tasks.length) * 100) : 0;
       document.getElementById('progressPct').textContent = pct + '%';
       document.getElementById('progressBar').style.width = pct + '%';
 
-      // Render lists
+      // Render individual list sections
       renderList('pendingList', pending, false);
       renderList('completedList', completed, true);
     }
 
+    /**
+     * Dynamic HTML template generation for lists.
+     */
     function renderList(containerId, taskArr, isCompleted) {
       const container = document.getElementById(containerId);
       if (!taskArr.length) {
@@ -710,10 +743,12 @@
       `).join('');
     }
 
+    // Input sanitization: Escapes dangerous HTML brackets/quotes to prevent XSS injection
     function escHtml(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Displays dynamic toast notification overlay
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -721,12 +756,12 @@
       setTimeout(() => t.classList.remove('show'), 2500);
     }
 
-    // Enter key to add
+    // Input text field keyboard listener: Allows task submission by hitting 'Enter'
     document.getElementById('taskInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') addTask();
     });
 
-    // Initial render
+    // Run initial render on page load
     renderAll();
   </script>
 </body>

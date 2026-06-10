@@ -805,18 +805,27 @@ document.addEventListener('mouseup',   function() { document.body.classList.remo
 
 /* =============================================
    LOADER
+   Handles the custom initial page loading animation.
+   Simulates loading progress by incrementing percentage randomly,
+   updating the loading bar width and the status message accordingly.
 ============================================= */
 (function() {
   var bar = document.getElementById('ld-bar');
   var status = document.getElementById('ld-status');
+  // Rotating status messages displayed to the user during initialization
   var msgs = ['Initializing...', 'Loading Assets...', 'Calibrating Interface...', 'Charging Weapons...', 'Ready.'];
   var pct = 0;
+  // Interval timer updating the load status bar every 120ms
   var iv = setInterval(function() {
-    pct += Math.random() * 18 + 5;
+    pct += Math.random() * 18 + 5; // increment load percentage randomly
     if (pct > 100) pct = 100;
-    bar.style.width = pct + '%';
+    bar.style.width = pct + '%'; // update visual loader bar width
+    
+    // Choose index from messages array based on current progress percentage
     var mi = Math.min(Math.floor((pct / 100) * msgs.length), msgs.length - 1);
     status.textContent = msgs[mi];
+    
+    // Once loader reaches 100%, clear the timer and slide up the loader screen
     if (pct >= 100) {
       clearInterval(iv);
       setTimeout(function() {
@@ -828,24 +837,31 @@ document.addEventListener('mouseup',   function() { document.body.classList.remo
 
 /* =============================================
    ACT 1 → ACT 2
+   Manages the main screen layout transitions.
+   Act 1 is the introduction/welcome landing screen.
+   Act 2 is the main interactive dashboard.
 ============================================= */
 var act = 1;
+// Listen for Enter or Space keys on initial welcome screen to trigger transition
 document.addEventListener('keydown', function(e) {
   if ((e.code === 'Enter' || e.code === 'Space') && act === 1) triggerAct2();
 });
+
+// Transitions layout from landing screen (Act 1) to main dashboard (Act 2)
 function triggerAct2() {
   if (act !== 1) return;
   act = 2;
   document.getElementById('act1').classList.add('hidden');
   document.getElementById('photo1').style.opacity = '0';
   setTimeout(function() {
-    document.getElementById('photo2').classList.add('active');
+    document.getElementById('photo2').classList.add('active'); // Activate second dashboard background
   }, 300);
   setTimeout(function() {
-    document.getElementById('act2').classList.add('active');
+    document.getElementById('act2').classList.add('active'); // Reveal the category cards
   }, 700);
 }
 
+// Navigates back to the welcome landing screen (Act 1)
 function goToLanding() {
   act = 1;
   document.getElementById('act2').classList.remove('active');
@@ -858,22 +874,30 @@ function goToLanding() {
 
 /* =============================================
    GUN FIRE
+   Handles the shoot-to-open card animation.
+   Calculates coordinates from a central gun muzzle position to the
+   clicked card, showing muzzle flashes, animating bullets, triggering
+   impact screen flashes, shattering the card, and opening the section.
 ============================================= */
 function fireGun(card) {
   var section = card.dataset.section;
   var rect = card.getBoundingClientRect();
+  // Target coordinates (center of the clicked card)
   var tx = rect.left + rect.width / 2;
   var ty = rect.top + rect.height / 2;
+  // Origin coordinates (gun muzzle at bottom center)
   var ox = window.innerWidth / 2;
   var oy = window.innerHeight * 0.55;
+  
   showMuzzleFlash(ox, oy);
   animBullet(ox, oy, tx, ty, function() {
-    triggerFlash(tx, ty);
-    shatterCard(rect);
-    openSection(section);
+    triggerFlash(tx, ty); // Impact screen flash
+    shatterCard(rect);    // Card breaking into geometric shards
+    openSection(section);  // Display the detailed portfolio section
   });
 }
 
+// Displays a brief scales-up muzzle flash particle at the weapon source coordinates
 function showMuzzleFlash(x, y) {
   var mf = document.getElementById('mflash');
   mf.style.cssText = 'left:' + (x-27) + 'px;top:' + (y-27) + 'px;opacity:1;transform:scale(1);transition:none';
@@ -884,18 +908,20 @@ function showMuzzleFlash(x, y) {
   }, 30);
 }
 
+// Animates a bullet streak from weapon muzzle (x1, y1) to target impact point (x2, y2)
 function animBullet(x1, y1, x2, y2, cb) {
   var b = document.getElementById('bullet');
   var dx = x2 - x1, dy = y2 - y1;
-  var angle = Math.atan2(dy, dx) * 180 / Math.PI;
-  var dur = Math.max(70, Math.sqrt(dx*dx + dy*dy) * .22);
+  var angle = Math.atan2(dy, dx) * 180 / Math.PI; // Calculate rotation angle for the bullet trajectory
+  var dur = Math.max(70, Math.sqrt(dx*dx + dy*dy) * .22); // Calculate animation duration based on distance
+  
   b.style.cssText = 'left:' + x1 + 'px;top:' + (y1-2) + 'px;opacity:1;transform:rotate(' + angle + 'deg);transition:none';
   requestAnimationFrame(function() {
     b.style.transition = 'left ' + dur + 'ms linear,top ' + dur + 'ms linear';
     b.style.left = (x2-10) + 'px';
     b.style.top = (y2-2) + 'px';
   });
-  setTimeout(function() { b.style.opacity = '0'; cb(); }, dur);
+  setTimeout(function() { b.style.opacity = '0'; cb(); }, dur); // Call impact callback on completion
 }
 
 function triggerFlash(x, y) {
@@ -955,12 +981,19 @@ function shatterCard(rect) {
 /* =============================================
    SECTION OPEN / CLOSE
 ============================================= */
+/* =============================================
+   SECTION OPEN / CLOSE
+   Builds the HTML cards and detailed lists for each section,
+   handles card clicks, shows subtitle speech bubbles, and transitions
+   screens between the lists and main dashboard layout.
+============================================= */
 function openSection(key) {
   var d = SECTIONS[key];
   document.getElementById('act2').classList.remove('active');
   document.getElementById('r-title').textContent = d.title;
   document.getElementById('r-sub').textContent = d.sub;
   var html = '';
+  // Dynamically populate section list items
   d.items.forEach(function(item, i) {
     html += '<div class="icard" onclick="expandItem(\'' + key + '\',' + i + ')">';
     if (item.date) html += '<div class="icard-date">' + item.date + '</div>';
@@ -980,17 +1013,17 @@ function openSection(key) {
     }
     html += '</div>';
     if (item.link) {
-      html += '<a href="' + item.link + '" target="_blank" class="github-link" onclick="event.stopPropagation()">View on GitHub →</a>';
+      html += '<a href="' + item.link + '" target="_blank" class="github-link" onclick="event.stopPropagation()">View on GitHub \u2192</a>';
     }
     html += '<div class="icard-hint">Click card to hear me explain &rarr;</div>';
     html += '</div>';
   });
   document.getElementById('r-body').innerHTML = html;
   document.getElementById('r-body').innerHTML = html;
-  document.getElementById('sview').classList.add('active');
+  document.getElementById('sview').classList.add('active'); // Slide-in detailed list view panel
   document.getElementById('back-btn').style.display = 'block';
-  spawnAvatar(d.avatar, d.dir);
-  setTimeout(function() { showBubble(d.title, d.bubble); }, 800);
+  spawnAvatar(d.avatar, d.dir); // Entrance slide-in for the avatar image
+  setTimeout(function() { showBubble(d.title, d.bubble); }, 800); // Trigger explanation speech bubble
 }
 
 function expandItem(key, i) {
@@ -1002,6 +1035,7 @@ function expandItem(key, i) {
   if (cards[i]) cards[i].classList.add('active-card');
 }
 
+// Triggers speech bubble with a nice fade-in animation
 function showBubble(title, text) {
   var b = document.getElementById('bubble');
   b.classList.remove('visible');
@@ -1010,29 +1044,35 @@ function showBubble(title, text) {
   setTimeout(function() { b.classList.add('visible'); }, 80);
 }
 
+// Navigates back from detailed panel to main dashboard category cards
 function goBack() {
   document.getElementById('sview').classList.remove('active');
   document.getElementById('bubble').classList.remove('visible');
   document.getElementById('back-btn').style.display = 'none';
   var img = document.getElementById('avatar-img');
-  img.style.opacity = '0'; img.src = '';
+  img.style.opacity = '0'; img.src = ''; // reset avatar properties
   document.getElementById('act2').classList.add('active');
 }
 
 /* =============================================
    AVATAR IMAGE SYSTEM
+   Manages the sliding animations for the avatar image when
+   entering from different directions (left, right, top).
 ============================================= */
 function spawnAvatar(src, dir) {
   var img = document.getElementById('avatar-img');
   img.style.transition = 'none';
   img.style.opacity = '0';
   img.classList.remove('visible-ready');
-  // Entrance from direction
+  
+  // Set initial off-screen transform based on the specified entrance direction
   if (dir === 'right') img.style.transform = 'translateX(120px)';
   else if (dir === 'top') img.style.transform = 'translateY(-120px)';
   else img.style.transform = 'translateX(-120px)';
+  
   img.src = src;
   setTimeout(function() {
+    // Transition back to origin with smooth cubic-bezier easing
     img.style.transition = 'opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1)';
     img.style.transform = 'translateX(0) translateY(0)';
     img.style.opacity = '1';
@@ -1041,32 +1081,36 @@ function spawnAvatar(src, dir) {
 
 /* =============================================
    AVATAR MOUSE TRACKING SWAY
+   Adds an immersive 3D perspective effect.
+   Tracks mouse coordinates when the avatar is active, applying 
+   Drift (translateX/Y) and Perspective Lean/Tilt (rotateX/Y) using LERP (Linear Interpolation).
 ============================================= */
 (function() {
   var img = document.getElementById('avatar-img');
-  var tX = 0, tY = 0, tRX = 0, tRY = 0;
-  var cX = 0, cY = 0, cRX = 0, cRY = 0;
+  var tX = 0, tY = 0, tRX = 0, tRY = 0; // Target values
+  var cX = 0, cY = 0, cRX = 0, cRY = 0; // Current values
   var active = false;
 
   document.addEventListener('mousemove', function(e) {
     if (!active) return;
-    // Map full screen mouse to sway values
-    var nx = (e.clientX / window.innerWidth - 0.5);   // -0.5 to 0.5
-    var ny = (e.clientY / window.innerHeight - 0.5);  // -0.5 to 0.5
-    tX  = nx * 22;    // drift left/right up to 11px
-    tY  = ny * 14;    // drift up/down up to 7px
-    tRY = nx * 25;    // rotate Y (left/right lean) up to 12.5deg
-    tRX = ny * -15;   // rotate X (forward/back tilt) up to 7.5deg
+    // Map screen mouse position from -0.5 to 0.5 range
+    var nx = (e.clientX / window.innerWidth - 0.5);   
+    var ny = (e.clientY / window.innerHeight - 0.5);  
+    tX  = nx * 22;    // translation range up to 22px
+    tY  = ny * 14;    // translation range up to 14px
+    tRY = nx * 25;    // rotation around Y-axis up to 25deg
+    tRX = ny * -15;   // rotation around X-axis up to -15deg
   });
 
   document.addEventListener('mouseleave', function() {
+    // Reset back to center when cursor leaves the window
     tX = 0; tY = 0; tRX = 0; tRY = 0;
   });
 
   (function loop() {
     requestAnimationFrame(loop);
     if (!active) return;
-    // Smooth lerp toward target
+    // Linear Interpolation (LERP) for smooth movement damping
     cX  += (tX  - cX)  * 0.07;
     cY  += (tY  - cY)  * 0.07;
     cRX += (tRX - cRX) * 0.07;
@@ -1078,7 +1122,7 @@ function spawnAvatar(src, dir) {
       'rotateY(' + cRY + 'deg)';
   })();
 
-  // Activate sway only when avatar is visible
+  // Use MutationObserver to only run sway loop calculation when avatar opacity is visible (1)
   var observer = new MutationObserver(function() {
     active = img.style.opacity === '1';
   });
@@ -1087,6 +1131,8 @@ function spawnAvatar(src, dir) {
 
 /* =============================================
    SKILL TICKER
+   Loops through the developer skills list, rotating the main text label
+   periodically with smooth fade in/out CSS keyframe animations.
 ============================================= */
 (function() {
   var skills = [
@@ -1100,7 +1146,6 @@ function spawnAvatar(src, dir) {
 
   function showNext() {
     if (!el) return;
-    // Fade out
     el.style.animation = 'none';
     el.style.opacity = '0';
     setTimeout(function() {
@@ -1111,7 +1156,7 @@ function spawnAvatar(src, dir) {
     }, 200);
   }
 
-  setInterval(showNext, 1500);
+  setInterval(showNext, 1500); // Shift skill word every 1.5 seconds
 })();
 
 /* =============================================
